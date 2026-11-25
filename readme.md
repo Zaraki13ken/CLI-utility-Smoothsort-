@@ -38,6 +38,10 @@ pip install -r requirements.txt
     ```bash
     python main.py --input nums.txt --numeric --output sorted.txt
     ```
+- **Генерация случайного списка и его сортировка**
+    ```bash
+    python main.py --visualize --size 15
+    ```
 ## Аргументы командной строки
 - **--input PATH FILE** - Входной файл (по одному значению на строку).
 - **--data STR** - Данные в командной строке "[2, -3, 5]".
@@ -46,3 +50,4 @@ pip install -r requirements.txt
 - **--numeric** - Интерпретировать данные как целые числа.
 - **--visualize** - Запустить графическую визуализацию.
 - **--interval NUM** - Задержка между кадрами анимации в мс (больше = медленнее, по умолчанию 500).
+- **--size NUM** - Генерирует случайный список с данным размером

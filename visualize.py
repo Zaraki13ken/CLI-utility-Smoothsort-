@@ -51,8 +51,14 @@ def smoothsort_with_frames(data: List[int], reverse: bool = False) -> List[dict]
         k = heap_ref[current]
         while current > 0:
             j = i - leo_nums[k]
-            if gt(arr[j], arr[i]) and (
-                    k < 2 or (gt(arr[j], arr[i - 1]) and gt(arr[j], arr[i - 2]))):
+            
+            if k >= 2:
+                t_r, k_r, t_l, k_l = _get_child_trees(i, k, leo_nums)
+                check_children = gt(arr[j], arr[t_r]) and gt(arr[j], arr[t_l])
+            else:
+                check_children = True
+
+            if gt(arr[j], arr[i]) and check_children:
                 add_frame(i, "trinkle: swap")
                 arr[i], arr[j] = arr[j], arr[i]
                 i = j

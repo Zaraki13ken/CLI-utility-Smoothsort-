@@ -22,14 +22,31 @@ def _get_child_trees(i: int, k: int, leo_nums: List[int]):
 
 def _restore_heap(lst: list, i: int, heap: List[int],
                   leo_nums: List[int], gt: Callable) -> None:
-    """Восстанавливает свойства куч"""
+    """Восстанавливает свойства куч (trinkle + sift).
+
+    :param lst: массив
+    :param i: индекс корня текущей кучи
+    :param heap: стек порядков куч
+    :param leo_nums: числа Леонардо
+    :param gt: функция строгого сравнения ``a > b``
+    """
+    # --- trinkle: поднимаем корень через предыдущие кучи ---
     current = len(heap) - 1
     k = heap[current]
 
     while current > 0:
+        # j — корень предыдущей кучи (левый потомок текущей)
         j = i - leo_nums[k]
-        if gt(lst[j], lst[i]) and (
-                k < 2 or (gt(lst[j], lst[i - 1]) and gt(lst[j], lst[i - 2]))):
+        
+        # Если у текущей кучи есть потомки (k >= 2), 
+        # проверяем, что корень предыдущей кучи (j) больше их обоих
+        if k >= 2:
+            t_r, k_r, t_l, k_l = _get_child_trees(i, k, leo_nums)
+            check_children = gt(lst[j], lst[t_r]) and gt(lst[j], lst[t_l])
+        else:
+            check_children = True
+
+        if gt(lst[j], lst[i]) and check_children:
             lst[i], lst[j] = lst[j], lst[i]
             i = j
             current -= 1
@@ -37,6 +54,7 @@ def _restore_heap(lst: list, i: int, heap: List[int],
         else:
             break
 
+    # --- sift: просейка внутри текущего дерева ---
     while k >= 2:
         t_r, k_r, t_l, k_l = _get_child_trees(i, k, leo_nums)
         if gt(lst[t_r], lst[i]) or gt(lst[t_l], lst[i]):
@@ -51,7 +69,11 @@ def _restore_heap(lst: list, i: int, heap: List[int],
 
 
 def _smoothsort(data: list, gt: Callable) -> None:
-    """Сортирует список на месте плавной сортировкой."""
+    """Сортирует список на месте плавной сортировкой.
+
+    :param data: сортируемый список
+    :param gt: функция строгого сравнения ``a > b``
+    """
     n = len(data)
     if n <= 1:
         return
@@ -59,6 +81,7 @@ def _smoothsort(data: list, gt: Callable) -> None:
     leo_nums = _leonardo_numbers(n)
     heap: List[int] = []
 
+    # Фаза 1: построение куч
     for i in range(n):
         if len(heap) >= 2 and heap[-2] == heap[-1] + 1:
             heap.pop()
@@ -70,6 +93,7 @@ def _smoothsort(data: list, gt: Callable) -> None:
                 heap.append(1)
         _restore_heap(data, i, heap, leo_nums, gt)
 
+    # Фаза 2: разбор куч
     for i in reversed(range(n)):
         if heap[-1] < 2:
             heap.pop()
@@ -103,7 +127,14 @@ def _make_key(key: Optional[Callable]) -> Callable:
 def my_sort(array: list, reverse: bool = False,
             key: Optional[Callable] = None,
             cmp: Optional[Callable] = None) -> list:
-    """Сортирует список плавной сортировкой (smoothsort)."""
+    """Сортирует список плавной сортировкой (smoothsort).
+
+    :param array: сортируемый список
+    :param reverse: если ``True`` — по невозрастанию, иначе по неубыванию
+    :param key: функция, вычисляющая значение для сравнения
+    :param cmp: функция сравнения двух аргументов
+    :return: новый отсортированный список
+    """
     data = list(array)
     if len(data) <= 1:
         return data
@@ -123,7 +154,10 @@ def my_sort(array: list, reverse: bool = False,
         wrapped = [_Keyed(v, get_key(v)) for v in data]
         if cmp is not None:
             base_gt = _make_gt(cmp, reverse)
-            wrapped_gt = lambda a, b: base_gt(a.k, b.k)
+
+            def wrapped_gt(a, b):
+                """Сравнение обёрнутых элементов по ключу."""
+                return base_gt(a.k, b.k)
         else:
             wrapped_gt = (lambda a, b: a.k < b.k) if reverse else (
                 lambda a, b: a.k > b.k)

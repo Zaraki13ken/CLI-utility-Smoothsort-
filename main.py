@@ -3,6 +3,7 @@
 import argparse
 import sys
 from typing import List, Optional
+import random
 
 from my_sort import my_sort
 
@@ -33,7 +34,9 @@ def _get_data(args: argparse.Namespace) -> List:
         return _parse_data(args.data, args.numeric)
     if args.input is not None:
         return _load_data_from_file(args.input, args.numeric)
-    raise ValueError("Не заданы данные: укажите --input или --data")
+    if args.size is not None:
+        return [random.randint(-50, 50) for _ in range(args.size)]
+    raise ValueError("Не заданы данные: укажите --input, --data или --size")
 
 
 def _save_result(result: List, output_path: str) -> None:
@@ -98,6 +101,9 @@ def main() -> None:
             "  python main.py --input nums.txt --numeric --reverse\n"
         ),
     )
+    parser.add_argument("--size", type=int, default=None,
+                        help="размер случайного списка для визуализации "
+                             "(если не заданы --data или --input)")
     parser.add_argument("--input", help="входной файл")
     parser.add_argument("--output", help="выходной файл")
     parser.add_argument("--data", help="данные в командной строке")
@@ -120,8 +126,8 @@ def main() -> None:
         except ValueError as exc:
             print(f"Ошибка: {exc}", file=sys.stderr)
             sys.exit(1)
-
-        if not args.numeric:
+        
+        if not args.numeric and args.size is None:
             print("Ошибка: графическая визуализация доступна только для чисел. "
                   "Добавьте флаг --numeric.", file=sys.stderr)
             sys.exit(1)

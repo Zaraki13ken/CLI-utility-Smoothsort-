@@ -4,6 +4,11 @@ import unittest
 
 import my_sort  # pylint: disable=E0401
 
+TEST_NUMBER_38 = [
+    27, 14, 35, 3, 19, 42, 8, 23, 1, 31, 16, 45, 10, 29, 5, 38, 
+    12, 21, 47, 7, 33, 18, 2, 40, 25, 11, 36, 4, 22, 49, 15, 30, 
+    6, 44, 20, 9, 37, 26
+]
 
 TEST_NUMBER = [
     [],
@@ -31,6 +36,17 @@ TEST_STR = [
 
 class TestSort(unittest.TestCase):
     """Тест-кейс модуля my_sort"""
+    def test_sort_38_increase(self):
+        """Тест сортировки 38 элементов по возрастанию (выявляет ошибку индекса)."""
+        self.assertEqual(my_sort.my_sort(TEST_NUMBER_38), sorted(TEST_NUMBER_38))
+
+    def test_sort_38_decrease(self):
+        """Тест сортировки 38 элементов по убыванию."""
+        self.assertEqual(
+            my_sort.my_sort(TEST_NUMBER_38, reverse=True),
+            sorted(TEST_NUMBER_38, reverse=True)
+        )
+        
     def test_sort_number_increase(self):
         """Тест функции сортировки числовых данных по возрастанию"""
         for data in TEST_NUMBER:
